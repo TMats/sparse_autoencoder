@@ -42,20 +42,36 @@ b2grad = zeros(size(b2));
 % the gradient descent update to W1 would be W1 := W1 - alpha * W1grad, and similarly for W2, b1, b2. 
 % 
 
+% forward propagation
+num_data = size(data,2);
+a1 = data;
+z2 = W1*a1+repmat(b1,1,num_data);
+a2 = sigmoid(z2);
+z3 = W2*a2+repmat(b2,1,size(a2,2));
+a3 = sigmoid(z3);
+sum_squares_cost = sum(sum((data-a3).^2))/(num_data*2);
+reg_cost = lambda*(sum(sum(W1.^2))+sum(sum(W2.^2)))/2;
 
+% average activation
+ave_activation = mean(a2,2);
 
+% スパース正則化項
+sparse_norm = sparsityParam*log(sparsityParam./ave_activation)+(1-sparsityParam)*log((1-sparsityParam)./(1-ave_activation));
+sparse_cost = beta*sum(sparse_norm);
 
+% 全体のcost
+cost = sum_squares_cost + reg_cost + sparse_cost;
 
+% delta and gradient
+delta3 = -(data-a3).*deriv_sigmoid(a3);
+b2grad = mean(delta3,2);
 
+d_sparse_cost = repmat(beta*(-sparsityParam./ave_activation+(1-sparsityParam)./(1-ave_activation)),1,num_data);
+delta2 = (W2'*delta3+d_sparse_cost).*deriv_sigmoid(a2);
+b1grad = mean(delta2,2);
 
-
-
-
-
-
-
-
-
+W2grad = delta3*a2'./num_data+lambda*W2;
+W1grad = delta2*a1'./num_data+lambda*W1;
 
 
 
@@ -79,3 +95,6 @@ function sigm = sigmoid(x)
     sigm = 1 ./ (1 + exp(-x));
 end
 
+function deriv_sigm = deriv_sigmoid(x)
+	  deriv_sigm = sigmoid(x).*(1-sigmoid(x));
+end

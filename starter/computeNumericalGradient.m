@@ -18,10 +18,15 @@ numgrad = zeros(size(theta));
 %                
 % Hint: You will probably want to compute the elements of numgrad one at a time. 
 
+eps = 10^-4;
 
-
-
-
+for i = 1:length(theta)
+	  theta_plus = theta;
+          theta_plus(i) = theta_plus(i)+eps;
+          theta_minus = theta;
+          theta_minus(i) = theta_minus(i)-eps;
+          numgrad(i) = (J(theta_plus)-J(theta_minus))/(2*eps);
+end
 
 
 

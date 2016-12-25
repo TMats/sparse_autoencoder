@@ -63,11 +63,11 @@ sparse_cost = beta*sum(sparse_norm);
 cost = sum_squares_cost + reg_cost + sparse_cost;
 
 % delta and gradient
-delta3 = -(data-a3).*deriv_sigmoid(a3);
+delta3 = -(data-a3).*deriv_sigmoid(z3);
 b2grad = mean(delta3,2);
 
 d_sparse_cost = repmat(beta*(-sparsityParam./ave_activation+(1-sparsityParam)./(1-ave_activation)),1,num_data);
-delta2 = (W2'*delta3+d_sparse_cost).*deriv_sigmoid(a2);
+delta2 = (W2'*delta3+d_sparse_cost).*deriv_sigmoid(z2);
 b1grad = mean(delta2,2);
 
 W2grad = delta3*a2'./num_data+lambda*W2;
